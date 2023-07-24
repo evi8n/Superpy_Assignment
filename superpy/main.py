@@ -7,6 +7,9 @@ from tabulate import tabulate
 import re
 import os
 import random
+import matplotlib.pyplot as plt
+import argcomplete
+
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -21,6 +24,7 @@ class ProductDetails:
         pass
 
     def print_product_by_id(self):
+        # Print product details read from the "current_inventory" CSV file based on product ID
         csv_file = "current_inventory.csv"
         product_id = input("Enter product ID:")
         if product_id:
@@ -30,7 +34,7 @@ class ProductDetails:
                 found_product = False
                 data = []
                 for row in reader:
-                    if row["ID"].lower() == product_id.lower():
+                    if row["Product ID"].lower() == product_id.lower():
                         found_product = True
                         data.append(list(row.values()))
 
@@ -47,6 +51,7 @@ class Personel:
         self.manager_id_csv = manager_id_csv
         self.manager_id = None
 
+    # Generate a new manager ID consisting of 6 random digits, save it in the "manager_id" CSV file and record the current date
     def generate_manager_id(self):
         self.manager_id = "".join(str(random.randint(0, 9)) for _ in range(6))
         print(f"New manager ID created: {self.manager_id}")
@@ -71,6 +76,7 @@ class Inventory:
         self.csv_file = csv_file
 
     def print_current_inventory(self):
+        # Read the "current_inventory" CSV file and print its contents in the form of a table
         csv_file = "current_inventory.csv"
         with open(csv_file, "r") as file:
             reader = csv.DictReader(file)
@@ -81,6 +87,7 @@ class Inventory:
         print(inventory_table)
 
     def add_product_to_inventory(self):
+        # Open "current_inventory" CSV file, input details of new product and append it
         csv_file = "current_inventory.csv"
         new_product = {}
 
@@ -88,6 +95,8 @@ class Inventory:
             reader = csv.DictReader(file)
             fieldnames = reader.fieldnames
 
+            # Check if product ID is inputted in the correct format (otherwise print feedback),
+            # and give user the option of exiting without making changes
             while True:
                 user_input_id = input(
                     "Enter product ID (type 'q' or 'quit' to cancel product addition):"
@@ -100,29 +109,31 @@ class Inventory:
                     print("Invalid input. Please enter a product ID.")
                     continue
 
-                new_product["ID"] = user_input_id
+                new_product["Product ID"] = user_input_id
 
                 new_product_name = str(input("Enter product name:"))
-                new_product["Name"] = new_product_name
+                new_product["Product Name"] = new_product_name
 
+                # Check that Cost price is inputted in the correct format (otherwise print feedback)
                 while True:
                     buy_price = input("Enter buy price:")
                     try:
                         buy_price = float(buy_price)
                         if buy_price != 0.0:
-                            new_product["Buy price"] = buy_price
+                            new_product["Cost price"] = buy_price
                             break
                         else:
                             print("Buy price cannot be zero.")
                     except ValueError:
                         print("Invalid input. Buy price must be a positive float.")
 
+                # Check that Retail price and quantity is inputted in the correct format (otherwise print feedback)
                 while True:
                     sell_price = input("Enter sell price:")
                     try:
                         sell_price = float(sell_price)
                         if sell_price != 0.0:
-                            new_product["Sell price"] = sell_price
+                            new_product["Cost price"] = sell_price
                             break
                         else:
                             print("Sell price cannot be zero.")
@@ -134,15 +145,17 @@ class Inventory:
                     print("Invalid input. Quantity must be a positive number.")
                     continue
 
-                new_product["In stock"] = quantity
-                # Set restock date to current date automatically
+                # Update the rest of the fields automatically
+
+                # Set restock date to current date
                 new_product["Restock date"] = datetime.date.today().isoformat()
-
-                new_product["Bought for restock"] = quantity
-
                 # Set the "Sold since restock" value to 0
                 new_product["Sold since restock"] = 0
+                new_product["Quantity bought for restock"] = quantity
+                new_product["Quantity in stock"] = quantity
 
+                # Define different behaviour if the new product's ID starts with FP (Food Product) or NF (Non-Food),
+                # so that the user is only required to input an expiration date for Food Products
                 if user_input_id.startswith("FP"):
                     while True:
                         expiration_date = input("Enter expiration date (YYYY-MM-DD):")
@@ -168,6 +181,7 @@ class Inventory:
                 break
 
     def update_inventory(self):
+        # Update any field of an existing product in the "current_inventory" CSV file
         csv_file = "current_inventory.csv"
         product_id = input("Enter product ID:")
         field_to_update = input("Enter field to be updated:").strip('"')
@@ -183,7 +197,7 @@ class Inventory:
                 print(f"Field {field_to_update} not found.")
                 field_to_update = input("Please enter field to be updated again:")
             for row in reader:
-                if row["ID"] == product_id:
+                if row["Product ID"] == product_id:
                     row[field_to_update.strip()] = new_value
                     found_product = True
                 inventory_data.append(row)
@@ -201,53 +215,19 @@ class Inventory:
                 f"Field {field_to_update} for product {product_id} updated to {new_value}."
             )
 
-    def update_stock_quantity(self):
-        csv_file = "current_inventory.csv"
-        product_id = input("Enter product ID:")
-
-        while True:
-            try:
-                quantity_bought = int(input("Enter quantity bought:"))
-                break
-            except ValueError:
-                print("Invalid input. Please enter an integer.")
-
-        inventory_data = []
-        found_product = False
-        new_quantity = 0
-
-        with open(csv_file, "r") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                if row["ID"] == product_id:
-                    current_quantity = int(row["In stock"])
-                    new_quantity = current_quantity + quantity_bought
-                    row["In stock"] = str(new_quantity)
-                    found_product = True
-                inventory_data.append(row)
-
-        if not found_product:
-            print(f"No product found with ID {product_id}")
-
-        with open(csv_file, "w", newline="") as file:
-            fieldnames = reader.fieldnames
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(inventory_data)
-
-            print(
-                f"Inventory updated. New quantity of product {product_id} currently in stock: {new_quantity}"
-            )
-
     def delete_inventory_entry(self):
+        # Delete a whole inventory entry from the "current_inventory" CSV file
         csv_file = "current_inventory.csv"
         product_id = input("Enter product ID to be deleted:")
 
+        # Check if there are multiple entries with the same product ID,
+        # and if there are (e.g multiple entries of the same product but with different expiration dates)
+        # specify which entry is to be deleted by expiration date
         matching_entries = []
         with open(csv_file, "r") as input_file:
             reader = csv.DictReader(input_file)
             for row in reader:
-                if row["ID"] == product_id:
+                if row["Product ID"] == product_id:
                     matching_entries.append(row)
 
         if not matching_entries:
@@ -276,6 +256,7 @@ class Inventory:
         print("Product details:")
         print(matching_entry)
 
+        # Ask for confirmation before deletion by asking for the manager's ID
         manager_id = input("Enter manager's ID for confirmation:")
         id_of_manager = Personel.generate_manager_id()
         if manager_id != id_of_manager:
@@ -287,6 +268,7 @@ class Inventory:
             print("Deletion cancelled.")
             return
 
+        # Create a temporary file "temp.csv" to hold the updated inventory data without the selected entry
         temp_file = "temp.csv"
         rows_to_write = []
         with open(csv_file, "r") as input_file:
@@ -300,6 +282,7 @@ class Inventory:
             writer.writeheader()
             writer.writerows(rows_to_write)
 
+        # Replace the original "current_inventory" CSV file with the temporary file, which does not include the deleted entry
         os.replace(temp_file, csv_file)
         print(
             f"Product with ID {product_id} and expiration date {expiration_date} was deleted from inventory."
@@ -307,16 +290,21 @@ class Inventory:
 
 
 class Transactions:
-    def __init__(self, csv_file, transactions_bought, transactions_sold):
+    def __init__(self, csv_file, transactions_bought, transactions_sold, date_manager):
         self.csv_file = csv_file
         self.transactions_bought = transactions_bought
         self.transactions_sold = transactions_sold
+        self.date_manager = date_manager
 
     def record_transaction_bought(self):
+        # Record an inventory purchase transaction by inputting a product ID
+        # update the quantity currently in stock for selected product
         csv_file = "current_inventory.csv"
         transactions_bought_file = "transactions_bought.csv"
         new_transaction = {}
 
+        # Check if product ID is inputted in the correct format (otherwise print feedback),
+        # and give user the option of exiting without making changes
         while True:
             user_input_id = input(
                 "Enter product ID (type 'q' or 'quit' to cancel transaction):"
@@ -329,17 +317,21 @@ class Transactions:
                 print("Invalid input. Please enter a product ID.")
                 continue
 
-            new_transaction["ID"] = user_input_id
+            new_transaction["Product ID"] = user_input_id
 
+            # Check that the quantity is inputted in the correct format (otherwise print feedback)
             quantity = input("Enter quantity bought:")
             if not quantity.isdigit() or int(quantity) == 0:
                 print("Invalid input. Quantity must be a positive number.")
                 continue
 
-            new_transaction["In stock"] = quantity
+            new_transaction["Quantity in stock"] = quantity
+            # Create a unique transaction ID
             new_transaction["Transaction ID"] = str(uuid4())
-            new_transaction["Restock date"] = datetime.date.today().isoformat()
+            new_transaction["Restock date"] = self.date_manager
 
+            # Check if expiration date is inputted in the correct format (otherwise print feedback)
+            # Check if the expiration date of the purchased product matches possible entries with the same product ID
             expiration_date = input("Enter expiration date (YYYY-MM-DD):")
             if not re.match(r"\d{4}-\d{2}-\d{2}$", expiration_date):
                 print(
@@ -349,8 +341,8 @@ class Transactions:
 
             new_transaction["Expiration date"] = expiration_date
 
-            product_id = new_transaction["ID"]
-            quantity = int(new_transaction["In stock"])
+            product_id = new_transaction["Product ID"]
+            quantity = int(new_transaction["Quantity in stock"])
             date = new_transaction["Restock date"]
             transaction_id = new_transaction["Transaction ID"]
 
@@ -364,12 +356,12 @@ class Transactions:
         found_product = False
         for product in inventory_data:
             if (
-                product["ID"] == product_id
+                product["Product ID"] == product_id
                 and product["Expiration date"] == expiration_date
             ):
-                current_quantity = int(product["In stock"])
+                current_quantity = int(product["Quantity in stock"])
                 new_quantity = current_quantity + int(quantity)
-                product["In stock"] = str(new_quantity)
+                product["Quantity in stock"] = str(new_quantity)
                 product["Restock date"] = date
                 found_product = True
                 break
@@ -380,20 +372,20 @@ class Transactions:
             # Get original product's data
         original_product = None
         for product in inventory_data:
-            if product["ID"] == product_id:
+            if product["Product ID"] == product_id:
                 original_product = product
                 break
 
             if original_product is not None:
                 # Append new entry of product if it has a different expiration date
                 new_product = {
-                    "ID": product_id,
-                    "Name": original_product["Name"],
-                    "In stock": quantity,
-                    "Buy price": original_product["Buy price"],
+                    "Product ID": product_id,
+                    "Product Name": original_product["Product Name"],
+                    "Quantity in stock": quantity,
+                    "Cost price": original_product["Cost price"],
                     "Restock date": date,
-                    "Bought for restock": quantity,
-                    "Sell price": original_product["Sell price"],
+                    "Quantity bought for restock": quantity,
+                    "Cost price": original_product["Cost price"],
                     "Sold since restock": "0",
                     "Expiration date": expiration_date,
                 }
@@ -413,10 +405,14 @@ class Transactions:
         print("Transaction recorded.")
 
     def record_transaction_sold(self):
+        # Record an inventory sale transaction by inputting a product ID
+        # update the quantity currently in stock for selected product
         csv_file = "current_inventory.csv"
         transactions_sold_file = "transactions_sold.csv"
         new_transaction = {}
 
+        # Check if product ID is inputted in the correct format (otherwise print feedback),
+        # and give user the option of exiting without making changes
         while True:
             user_input_id = input(
                 "Enter product ID (type 'q' or 'quit' to cancel transaction):"
@@ -429,19 +425,20 @@ class Transactions:
                 print("Invalid input. Please enter a product ID.")
                 continue
 
-            new_transaction["ID"] = user_input_id
+            new_transaction["Product ID"] = user_input_id
 
+            # Check if quantity is inputted in the correct format (otherwise print feedback)
             quantity = input("Enter quantity sold:")
             if not quantity.isdigit() or int(quantity) == 0:
                 print("Invalid input. Quantity must be a positive number.")
                 continue
 
-            new_transaction["In stock"] = quantity
+            new_transaction["Quantity in stock"] = quantity
             new_transaction["Transaction ID"] = str(uuid4())
 
-            product_id = new_transaction["ID"]
-            quantity = int(new_transaction["In stock"])
-            date = datetime.date.today().isoformat()
+            product_id = new_transaction["Product ID"]
+            quantity = int(new_transaction["Quantity in stock"])
+            date = self.date_manager
             transaction_id = new_transaction["Transaction ID"]
 
             break
@@ -453,10 +450,10 @@ class Transactions:
             reader = csv.DictReader(file)
             fieldnames = reader.fieldnames
             for row in reader:
-                if row["ID"] == product_id:
-                    current_quantity = int(row["In stock"])
+                if row["Product ID"] == product_id:
+                    current_quantity = int(row["Quantity in stock"])
                     new_quantity = current_quantity - int(quantity)
-                    row["In stock"] = str(new_quantity)
+                    row["Quantity in stock"] = str(new_quantity)
                     current_sold_quantity = int(row["Sold since restock"])
                     new_sold_quantity = current_sold_quantity + int(quantity)
                     row["Sold since restock"] = str(new_sold_quantity)
@@ -492,16 +489,18 @@ class ReportCreation:
         self,
         expiring_products_csv,
         low_inventory_csv,
+        date_manager,
     ):
         self.expiring_products_csv = expiring_products_csv
         self.low_inventory_csv = low_inventory_csv
+        self.date_manager = date_manager
 
     def print_expiring_products(self):
+        # Generate a report of expiring products within the next 30 days
         csv_file = "current_inventory.csv"
-        current_date = datetime.date.today()
+        current_date = self.date_manager
         threshold = current_date + datetime.timedelta(days=30)
 
-        # Open and read csv file
         with open(csv_file, "r") as file:
             reader = csv.DictReader(file)
             fieldnames = reader.fieldnames + ["Days to expire:"]
@@ -519,6 +518,8 @@ class ReportCreation:
                         row["Days to expire:"] = days_to_expire
                         expiring_products.append(row)
 
+        # If products are found with an expiration date less than 30 days away,
+        # create a report and print the contents
         if expiring_products:
             with open("expiring_products.csv", "w", newline="") as expiring_file:
                 writer = csv.DictWriter(expiring_file, fieldnames=fieldnames)
@@ -535,10 +536,10 @@ class ReportCreation:
             print("No products expiring in the next 30 days.")
 
     def print_low_inventory(self):
+        # Generate a report of products with a stock quantity less than 30
         csv_file = "current_inventory.csv"
         threshold = 30
 
-        # Open and read csv file
         with open(csv_file, "r") as file:
             reader = csv.DictReader(file)
             fieldnames = reader.fieldnames
@@ -546,11 +547,13 @@ class ReportCreation:
             # Iterate through products in inventory and check for products with a stock count less than 30
             low_inventory = []
             for row in reader:
-                products_in_stock_str = row["In stock"]
+                products_in_stock_str = row["Quantity in stock"]
                 products_in_stock = int(products_in_stock_str)
                 if products_in_stock <= threshold:
                     low_inventory.append(row)
 
+        # If products are found with a stock quantity less than 30,
+        # create a report and print the contents
         if low_inventory:
             with open("low_inventory.csv", "w", newline="") as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -565,12 +568,16 @@ class ReportCreation:
                 print(low_inventory_table)
 
     def print_expired_products(self):
+        # Generate a report of products with a past expiration date
         csv_file = "current_inventory.csv"
-        current_date = datetime.date.today()
+        current_date = self.date_manager
         expired_products = []
+
         with open(csv_file, "r") as file:
             reader = csv.DictReader(file)
             fieldnames = reader.fieldnames + ["Total expired"]
+
+            # Iterate through products in inventory and check for products with a past expiration date
             for row in reader:
                 expiration_date = row["Expiration date"]
                 if (
@@ -578,13 +585,15 @@ class ReportCreation:
                     and datetime.datetime.strptime(expiration_date, "%Y-%m-%d").date()
                     < current_date
                 ):
-                    row["Total expired"] = row["In stock"]
+                    row["Total expired"] = row["Quantity in stock"]
                     expired_products.append(row)
         with open("expired_products.csv", "w", newline="") as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(expired_products)
 
+        # If products are found with a past expiration date,
+        # create a report and print the contents
         if expired_products:
             print("Expired products report created.")
             print("Expired products:")
@@ -596,6 +605,7 @@ class ReportCreation:
             print("No expired products.")
 
     def print_transactions_sold(self):
+        # Print a report with all sale transactions
         with open("transactions_sold.csv", "r") as file:
             reader = csv.reader(file)
             transactions_sold_data = list(reader)
@@ -605,6 +615,7 @@ class ReportCreation:
             print(transactions_sold_table)
 
     def print_transactions_bought(self):
+        # Print a report with all inventory purchase transactions
         with open("transactions_bought.csv", "r") as file:
             reader = csv.reader(file)
             transactions_bought_data = list(reader)
@@ -616,6 +627,7 @@ class ReportCreation:
             print(transactions_bought_table)
 
     def report_revenue_profit(self):
+        # Calculate revenue and profit for a specific period of time
         start_date_str = input("Enter start date (YYYY-MM-DD):")
         end_date_str = input("Enter end date (YYYY-MM-DD):")
 
@@ -625,50 +637,88 @@ class ReportCreation:
         transactions_bought = "transactions_bought.csv"
         transactions_sold = "transactions_sold.csv"
         csv_file = "current_inventory.csv"
-        revenue = 0
-        expenses = 0
+        revenue_list = []
+        profit_list = []
+        dates = []
 
+        # Read transactions_bought.csv into memory
         with open(transactions_bought, "r") as file:
             reader = csv.reader(file)
             next(reader)  # Skip header row
-            for row in reader:
-                transaction_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
-                if start_date <= transaction_date <= end_date:
-                    product_id = row[1]
-                    quantity = int(row[2])
-                    buy_price = 0
+            transactions_bought_data = list(reader)
 
-            # Get the product's price from the current inventory
-            with open(csv_file, "r") as inventory_file:
-                inventory_reader = csv.DictReader(inventory_file)
-                for inventory_row in inventory_reader:
-                    if inventory_row["ID"] == product_id:
-                        buy_price = float(inventory_row["Buy price"])
-                        break
-            expenses += buy_price * quantity
-
+        # Read transactions_sold.csv into memory
         with open(transactions_sold, "r") as file:
             reader = csv.reader(file)
             next(reader)  # Skip header row
-            for row in reader:
-                transaction_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
-                if start_date <= transaction_date <= end_date:
-                    product_id = row[1]
-                    quantity = int(row[2])
-                    sell_price = 0
+            transactions_sold_data = list(reader)
+
+        for row in transactions_bought_data:
+            transaction_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
+            if start_date <= transaction_date <= end_date:
+                product_id = row[1]
+                quantity = int(row[2])
+                buy_price = 0
 
                 # Get the product's price from the current inventory
                 with open(csv_file, "r") as inventory_file:
                     inventory_reader = csv.DictReader(inventory_file)
                     for inventory_row in inventory_reader:
-                        sell_price = float(inventory_row["Sell price"])
-                        break
-                revenue += sell_price * quantity
+                        if inventory_row["Product ID"] == product_id:
+                            buy_price = float(inventory_row["Cost price"])
+                            break
+                expenses = buy_price * quantity
+                dates.append(transaction_date)
+                profit_list.append(0)
+                revenue_list.append(-expenses)
 
-        profit = revenue - expenses
-        print(f"Revenue: {revenue}")
-        print(f"Profit: {profit}")
-        return revenue, profit
+        for row in transactions_sold_data:
+            transaction_date = datetime.datetime.strptime(row[3], "%Y-%m-%d").date()
+            if start_date <= transaction_date <= end_date:
+                product_id = row[1]
+                quantity = int(row[2])
+                sell_price = 0
+
+                # Get the product's price from the current inventory
+                with open(csv_file, "r") as inventory_file:
+                    inventory_reader = csv.DictReader(inventory_file)
+                    for inventory_row in inventory_reader:
+                        if inventory_row["Product ID"] == product_id:
+                            sell_price = float(inventory_row["Cost price"])
+                            break
+                revenue = sell_price * quantity
+                dates.append(transaction_date)
+                profit_list.append(revenue)
+                revenue_list.append(revenue)
+
+        # Calculate cumulative revenue and profit
+        for i in range(1, len(revenue_list)):
+            revenue_list[i] += revenue_list[i - 1]
+            profit_list[i] += profit_list[i - 1]
+
+        return revenue_list, profit_list, dates
+
+    def plot_revenue_profit_line_chart(self, revenue_list, profit_list, dates):
+        plt.plot(dates, revenue_list, label="Revenue")
+        plt.plot(dates, profit_list, label="Profit")
+        plt.xlabel("Date")
+        plt.ylabel("Amount")
+        plt.title("Revenue and Profit Over Time")
+        plt.legend()
+        plt.show()
+
+    def plot_revenue_profit_line_chart(self, revenue_list, profit_list, dates):
+        # Plot a line chart for revenue and profit
+        plt.plot(dates, revenue_list, label="Revenue", marker="o", linestyle="-")
+        plt.plot(dates, profit_list, label="Profit", marker="o", linestyle="-")
+
+        plt.title("Revenue and Profit Over Time")
+        plt.xlabel("Date")
+        plt.ylabel("Amount")
+        plt.xticks(rotation=45)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
 
 class DateManager:
@@ -691,8 +741,19 @@ class DateManager:
             file.write(self.current_date.strftime("%Y-%m-%d"))
 
     def advance_time(self, days):
+        # Advance date for the whole program
         self.current_date += datetime.timedelta(days=days)
         self.save_current_date()
+
+    def reset_date(self):
+        # Reset the advanced date back to the current date
+        today = datetime.date.today()
+        with open(self.date_file, "w") as file:
+            file.write(today.strftime("%Y-%m-%d"))
+
+        print(
+            f"The date has been reset to the original current date: {today.strftime('%Y-%m-%d')}."
+        )
 
     def get_current_date(self):
         return self.current_date
@@ -700,26 +761,42 @@ class DateManager:
 
 def main():
     args = parse_arguments()
+    # Create a DateManager object to manage the current date used throughout the whole program
+    date_manager = DateManager("current_date.txt")
+
     inventory = Inventory(args.current_inventory_csv)
+
     transactions = Transactions(
         args.current_inventory_csv,
         args.transactions_bought,
         args.transactions_sold,
+        date_manager.get_current_date(),
     )
+
     product_details = ProductDetails()
-    date_manager = DateManager(args.date_file)
     report_creation = ReportCreation(
         args.expiring_products_csv,
         args.low_inventory_csv,
+        date_manager.get_current_date(),
     )
+
     personel = Personel("manager_id.csv")
 
-    if args.command == "add_new_product":
+    if args.command == "advance":
+        date_manager.advance_time(args.days)
+        print(
+            f"The date in {args.days} days will be {date_manager.get_current_date()}. Program now operates with this date. Use the reset_date command to return back to the current date."
+        )
+        return
+
+    elif args.command == "reset_date":
+        date_manager.reset_date()
+        return
+
+    elif args.command == "add_new_product":
         inventory.add_product_to_inventory()
     elif args.command == "print_current_inventory":
         inventory.print_current_inventory()
-    elif args.command == "update_stock":
-        inventory.update_stock_quantity()
     elif args.command == "update_inventory":
         inventory.update_inventory()
     elif args.command == "delete_inventory_entry":
@@ -741,14 +818,10 @@ def main():
     elif args.command == "record_transaction_sold":
         transactions.record_transaction_sold(date_manager.get_current_date())
     elif args.command == "report_profit":
-        report_creation.report_revenue_profit()
+        revenue_list, profit_list, dates = report_creation.report_revenue_profit()
+        report_creation.plot_revenue_profit_line_chart(revenue_list, profit_list, dates)
     elif args.command == "print_product_details":
         product_details.print_product_by_id()
-    elif args.command == "advance_date":
-        date_manager.advance_time(args.days)
-        print(
-            f"The date in {args.days} days will be {date_manager.get_current_date()}."
-        )
 
 
 # Define command-line-arguments
@@ -765,23 +838,40 @@ def parse_arguments():
             "print_expired_products",
             "print_transactions_sold",
             "print_transactions_bought",
-            "update_stock",
             "update_inventory",
             "delete_inventory_entry",
             "generate_manager_id",
-            "advance_date",
+            "advance",
+            "reset_date",
             "record_transaction_bought",
             "record_transaction_sold",
             "report_profit",
             "print_product_details",
         ],
-        help="Specify commands: add_new product, print current inventory, print expiring products, print low inventory, print expired products, print_transactions_sold, print_transactions_bought, update_stock, update inventory, delete inventory entry, generate manager id, advance date, record transaction bought, record transaction sold, report profit, print product details",
+        help=(
+            "Specify commands: add_new product, print current inventory, print expiring products, "
+            " print low inventory, print expired products, print transactions sold, print transactions bought, "
+            "update inventory, delete inventory entry, generate manager id, advance date, reset_date, "
+            "record transaction bought, record transaction sold, report profit, print product details"
+        ),
     )
 
     parser.add_argument(
-        "--advance_date",
-        default="current_date.txt",
-        help="Path to the current date file",
+        "--advance",
+        type=int,
+        help="Number of days to advance the current date",
+    )
+    parser.add_argument(
+        "--reset_date",
+        action="store_true",
+        help="Reset the advanced date back to the current date",
+    )
+    parser.add_argument(
+        "days",
+        type=int,
+        nargs="?",
+        default=0,
+        help="Number of days to advance (or reset_date to reset)",
     )
     parser.add_argument(
         "--current_inventory_csv",
@@ -816,11 +906,6 @@ def parse_arguments():
         help="Print all the buying transactions",
     )
     parser.add_argument(
-        "--update_stock",
-        action="store_true",
-        help="Update stock quantity in current inventory",
-    )
-    parser.add_argument(
         "--update_inventory", action="store_true", help="Print the updated inventory"
     )
     parser.add_argument(
@@ -828,7 +913,6 @@ def parse_arguments():
         action="store_true",
         help="Delete a whole inventory entry",
     )
-    parser.add_argument("--advance_time", type=int, help="Number of days to advance")
     parser.add_argument(
         "--transactions_bought",
         nargs="?",
@@ -843,10 +927,8 @@ def parse_arguments():
     parser.add_argument(
         "--quantity", nargs="?", help="Quantity of product sold or bought"
     )
-    parser.add_argument("days", type=int, nargs="?", help="Number of days to advance")
-    parser.add_argument(
-        "--date_file", default="current_date.txt", help="Path to the current date file"
-    )
+
+    argcomplete.autocomplete(parser)
 
     return parser.parse_args()
 

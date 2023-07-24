@@ -42,3 +42,16 @@ class TestDateManager:
         self.date_manager.current_date = current_date
 
         assert self.date_manager.get_current_date() == current_date
+
+    def test_reset_date(self):
+        test_date = datetime.date(2023, 12, 2)
+        with open(self.date_file, "w") as file:
+            file.write(test_date.strftime("%Y-%m-%d"))
+
+        self.date_manager.reset_date()
+
+        assert self.date_manager.current_date == datetime.date.today()
+
+        with open(self.date_file, "r") as file:
+            saved_date_str = file.read().strip()
+        assert saved_date_str == datetime.date.today().strftime("%Y-%m-%d")

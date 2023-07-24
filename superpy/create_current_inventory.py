@@ -2,13 +2,13 @@ import csv
 
 # Specify the fieldnames
 fieldnames = [
-    "ID",
-    "Name",
-    "In stock",
-    "Buy price",
+    "Product ID",
+    "Product Name",
+    "Quantity in stock",
+    "Cost price",
     "Restock date",
-    "Bought for restock",
-    "Sell price",
+    "Quantity bought for restock",
+    "Retail price",
     "Sold since restock",
     "Expiration date",
 ]
@@ -22,7 +22,3 @@ with open(file_path, "w", newline="") as file:
 
     # Write header row
     writer.writeheader()
-
-    # Write the data rows
-    for product in products:
-        writer.writerow(product)
