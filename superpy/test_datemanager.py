@@ -1,6 +1,6 @@
 import os
 import datetime
-from main import DateManager
+from super import DateManager
 
 
 class TestDateManager:

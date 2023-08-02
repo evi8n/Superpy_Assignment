@@ -1,0 +1,440 @@
+Superpy Command Line Tool - Usage Guide
+
+Description:
+
+Superpy is a command line tool created to manage the inventory and transactions of a supermarket.
+It allows the user to perform various tasks, such as inventory management, transaction recording,
+report printing and data backup and restore. Here you will find an overview of the available
+commands and information on how to use them, as well as various examples.
+
+In order to use Superpy, you need to have Python 3.x installed.
+
+Available Commands:
+
+1. Print Current Inventory
+Description: Display the current inventory.
+Command: 'python super.py print_current_inventory
+Example:
+
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+| Product ID   | Product Name                                  |   Quantity in stock |   Cost price | Restock date   |   Quantity bought for restock | Retail price   |
++==============+===============================================+=====================+==============+================+===============================+================+
+| FP987KS      | De Zaanse Hoeve Halfvolle melk 1lt            |                  26 |         0.21 | 2023-07-09     |                            23 | 0.99      
+     |                    0 | 2022-11-02        |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+| NF842FV      | Pampers Premium Protection Maat 4, x24 Luiers |                  13 |         3.29 | 2023-07-09     |                             4 | 9.40      
+     |                    0 | -                 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+| FP542TG      | Uncle Ben's Long Grain Rice 500gr             |                  44 |         0.39 | 2023-07-16     |                            12 | 0.99      
+     |                    2 | 2024-05-22        |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+| FP123LP      | JOZO Iodized Salt Fine 1kg                    |                  98 |         0.13 | 2023-07-09     |                           154 | 0.98      
+     |                    8 | -                 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+
+2. Print Product Details
+
+Description: Print detailed information about a specific product by its ID.
+Command: python superpy.py print_product_details
+Examples:
+
+python super.py print_product_details
+Enter product ID:FP789UI
+Product details:
++--------------+---------------------------+---------------------+--------------+----------------+
+| Product ID   | Product Name              |   Quantity in stock |   Cost price | Restock date   |
++==============+===========================+=====================+==============+================+
+| FP789UI      | Example Food product name |                  10 |            1 | 2023-07-31     |
+    |
++--------------+---------------------------+---------------------+--------------+----------------+
+
+-If there are multiple entries of the same product, it will print all of them:
+python super.py print_product_details
+Enter product ID:FP789UI
+Product details:
++--------------+---------------------------+---------------------+--------------+----------------+
+| Product ID   | Product Name              |   Quantity in stock |   Cost price | Restock date   |
++==============+===========================+=====================+==============+================+
+| FP789UI      | Example Food product name |                  10 |            1 | 2023-07-31     |
+    |
++--------------+---------------------------+---------------------+--------------+----------------+
+| FP789UI      | Example Food product name |                  20 |            1 | 2023-07-31     |
+    |
++--------------+---------------------------+---------------------+--------------+----------------+
+
+
+3. Add New Product
+Description: Add a new product to the inventory. Each field field that the user is prompted to add data for,
+will return an error, if the data is inputted in the wrong format.
+Command: python super.py add_new_product
+Examples:
+
+-When all data is inputted correctly:
+python super.py add_new_product        
+Enter product ID (type 'q' or 'quit' to cancel product addition):NF786YT
+Enter product name:Example item name
+Enter cost price:1.00
+Enter retail price:2.00
+Product NF786YT added to inventory.
+
+Product ID,Product Name,Quantity in stock,Cost price,Restock date,Quantity bought for restock,Retail price,Sold since restock,Expiration date
+NF567RT,Example product name,0,1.00,-,0,2.00,0,-
+
+-In case the user chooses to quit:
+python super.py add_new_product
+Enter product ID (type 'q' or 'quit' to cancel product addition):q
+No product added.
+
+-In case product ID is not inputted in the correct format:
+python super.py add_new_product
+Enter product ID (type 'q' or 'quit' to cancel product addition):PU-sgk
+Invalid input. Product ID must be in the format NF/FP + 3 digits + 2 letters.
+
+-In case product name is left blank:
+...
+Enter product name:
+Product name cannot be empty.
+Enter product name:
+
+-In case cost price is not inputted in the correct format (or left blank or zero):
+...
+Enter cost price:2
+Invalid input. Cost price must be a positive float with two decimals.
+Enter cost price:
+
+-In case retail price is not inputted in the correct format (or left blank or zero):
+...
+Enter retail price:2.0
+Invalid input. Cost price must be a positive float with two decimals.
+Enter retail price:
+
+-When a product ID starts with "FP" (food product) the user will be asked to input an expiration date:
+...
+Enter retail price:2.00
+Enter expiration date (YYYY-MM-DD):
+
+Product ID,Product Name,Quantity in stock,Cost price,Restock date,Quantity bought for restock,Retail price,Sold since restock,Expiration date
+FP789UI,Example product name,0,1.00,-,0,2.00,0,2023-12-12
+
+-In case the expiration date is not inputted in the correct format:
+...
+Enter expiration date (YYYY-MM-DD):2023.12.12 
+Invalid input. Expiration date must be in the format YYYY-MM-DD.
+Enter expiration date (YYYY-MM-DD):
+
+-When an product already exists in the inventory:
+...
+Enter expiration date (YYYY-MM-DD):2023-12-12
+This product already exists. Do you want to add a new entry anyway? (y/n): y
+New product added to inventory.
+
+...
+Enter expiration date (YYYY-MM-DD):2023-12-12
+This product already exists. Do you want to add a new entry anyway? (y/n): n
+No product added.
+
+-When an "FP" product already exists in the inventory but has a different expiration date:
+python super.py add_new_product
+Enter product ID (type 'q' or 'quit' to cancel product addition):FP789UI
+Enter product name:Example product name
+Enter cost price:1.00 
+Enter retail price:2.00       
+Enter expiration date (YYYY-MM-DD):2023-11-11 
+New product added to inventory.
+
+FP789UI,Example product name,0,1.00,-,0,2.00,0,2023-12-12
+FP789UI,Example product name,0,1.00,-,0,2.00,0,2023-11-11
+
+4. Update Inventory Entry
+Description: Update any field of an existing product in the inventory.
+Command: python super.py update_inventory
+Example:
+
+python super.py update_inventory_entry
+Enter product ID:NF567RT    
+Enter field to be updated:Cost price
+Enter the new value:1.50
+Field Cost price for product NF567RT updated to 1.50.
+
+5. Delete Inventory Entry
+Description: Remove a product entry from the inventory after asking for confirmation by asking the user to input a manager's ID.
+(current manager's ID can be found in manager_id.csv)
+Command: python super.py delete_inventory_entry
+Examples:
+
+python super.py delete_inventory_entry 
+Enter product ID to be deleted:NF567RT
+Product details:
+{'Product ID': 'NF567RT', 'Product Name': 'Example product name', 'Quantity in stock': '0', 'Cost price': '1.50', 'Restock date': '-', 'Quantity bought for restock': '0', 'Retail price': '2.00', 'Sold since restock': '0', 'Expiration date': '-'}
+Enter manager's ID for confirmation:837114
+Are you sure you want to delete this entry? (y/n):y
+Product with ID NF567RT was deleted from inventory.
+
+-If multiple entries of the same product are found, but with different expiration dates, the user will be asked to specify, in order to delete the correct entry:
+python super.py delete_inventory_entry
+Enter product ID to be deleted:FP789UI
+Multiple entries found with ID FP789UI.
+Please specify expiration date of the entry to delete (YYYY-MM-DD):2023-12-12
+Product details:
+{'Product ID': 'FP789UI', 'Product Name': 'Example product name', 'Quantity in stock': '0', 'Cost price': '1.00', 'Restock date': '-', 'Quantity bought for restock': '0', 'Retail price': '2.00', 'Sold since restock': '0', 'Expiration date': '2023-12-12'}
+Enter manager's ID for confirmation:837114
+Are you sure you want to delete this entry? (y/n):y
+Product with ID FP789UI and expiration date 2023-12-12 was deleted from inventory.
+
+6. Print Expiring Products
+
+Description: Generate a report of products expiring within the next 30 days.
+Command: python super.py print_expiring_products
+Example:
+
+python super.py print_expiring_products
+Expiring products report created.
+Expiring products:
++--------------+-------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+| Product ID   | Product Name      |   Quantity in stock |   Cost price | Restock date   |   Quantity bought for restock |   Retail price |
++==============+===================+=====================+==============+================+===============================+================+
+| FP447KT      | Vrieslollies 10st |                  50 |         0.11 | 2023-07-18     |                            50 |           0.99 |
++--------------+-------------------+---------------------+--------------+----------------+-------------------------------+----------------+
+
+7. Print Low Inventory
+
+Description: Generate a report of products with a stock quantity less than 30.
+Command: python super.py print_low_inventory
+Example:
+
+python super.py print_low_inventory    
+Low inventory report created.
+Low inventory products:
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| Product ID   | Product Name                                  |   Quantity in stock |   Cost price | Restock date   |   Quantity bought for restock |
++==============+===============================================+=====================+==============+================+===============================+
+| FP987KS      | De Zaanse Hoeve Halfvolle melk 1lt            |                  26 |         0.21 | 2023-07-09     |                            23 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| NF842FV      | Pampers Premium Protection Maat 4, x24 Luiers |                  13 |         3.29 | 2023-07-09     |                             4 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP845OP      | Hagelslag puur 600gr                          |                   6 |         0.79 | 2023-07-13     |                            50 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP845OP      | Hagelslag puur 600gr                          |                   2 |         0.79 | 2023-07-13     |                             2 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP845OP      | Hagelslag puur 600gr                          |                  25 |         0.79 | 2023-07-14     |                            25 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP156ER      | Jumbo Mozzarella 220g                         |                  25 |         0.15 | 2023-07-18     |                            25 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP789UI      | Example product name                          |                   0 |         1    | -              |                             0 |
++--------------+-----------------------------------------------+---------------------+--------------+----------------+-------------------------------+
+
+8. Print Expired Products
+
+Description: Generate a report of products with a past expiration date.
+Command: python super.py print_expired_products
+Example:
+
+python super.py print_expired_products
+Expired products report created.
+Expired products:
++--------------+------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| Product ID   | Product Name                       |   Quantity in stock |   Cost price | Restock date   |   Quantity bought for restock |
++==============+====================================+=====================+==============+================+===============================+
+| FP987KS      | De Zaanse Hoeve Halfvolle melk 1lt |                  26 |         0.21 | 2023-07-09     |                            23 |
++--------------+------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP845OP      | Hagelslag puur 600gr               |                   6 |         0.79 | 2023-07-13     |                            50 |
++--------------+------------------------------------+---------------------+--------------+----------------+-------------------------------+
+| FP845OP      | Hagelslag puur 600gr               |                  25 |         0.79 | 2023-07-14     |                            25 |
++--------------+------------------------------------+---------------------+--------------+----------------+-------------------------------+
+
+9. Print Transactions Sold
+
+Description: Print a report with all sale transactions.
+Command: python super.py print_transactions_sold
+Example:
+
+python super.py print_transactions_sold
+Sale transactions data:
++--------------------------------------+------------+----------+------------+
+| Transaction ID                       | Product ID | Quantity | Date       |
++--------------------------------------+------------+----------+------------+
+| 025c2a07-3529-44f1-b9f8-cf0677601ef0 | FP987KS    | 3        | 2023-07-09 |
++--------------------------------------+------------+----------+------------+
+| d68bb778-723f-4dfc-931d-a7d337e772b7 | NF986OH    | 10       | 2023-07-11 |
++--------------------------------------+------------+----------+------------+
+| 1b004560-1101-4caf-a449-d12e776fea53 | FP845OP    | 46       | 2023-07-13 |
++--------------------------------------+------------+----------+------------+
+
+
+10. Print Transactions Bought
+
+Description: Print a report with all inventory purchase transactions.
+Command: python super.py print_transactions_bought
+Examples:
+
+python super.py print_transactions_bought
+Buying transactions data:
++--------------------------------------+------------+----------+------------+
+| Transaction ID                       | Product ID | Quantity | Date       |
++--------------------------------------+------------+----------+------------+
+| 3b7e15c7-823d-498a-ad0b-70081c07536c | NF842FV    | 7        | 2023-07-09 |
++--------------------------------------+------------+----------+------------+
+| 4bdd272d-c89e-4c9a-81a4-879014f2df97 | NF842FV    | 2        | 2023-07-09 |
++--------------------------------------+------------+----------+------------+
+| 0d910319-581f-4278-adb0-1470f4ebcb86 | NF986OH    | 100      | 2023-07-11 |
++--------------------------------------+------------+----------+------------+
+
+11. Record Transaction Bought
+
+Description: Record a new inventory purchase transaction and automatically update the 'Quantity in stock' field of specific product.
+Command: python super.py record_transaction_bought
+Examples:
+
+-If a product already exists in the inventory:
+python super.py record_transaction_bought
+Enter product ID (type 'q' or 'quit' to cancel transaction):NF562LA
+Enter quantity bought:50
+Recorded transaction bought on: 2023-07-31
+Transaction recorded.
+
+-For food products ("FP") the user will be asked for the expiration date:
+python super.py record_transaction_bought
+Enter product ID (type 'q' or 'quit' to cancel transaction):FP789UI
+Enter expiration date (YYYY-MM-DD):2023-11-11
+Enter quantity bought:20
+Recorded transaction bought on: 2023-07-31
+Transaction recorded.
+
+-If product does not exist in inventory, user will be informed:
+python super.py record_transaction_bought
+Enter product ID (type 'q' or 'quit' to cancel transaction):NF562LA
+Enter quantity bought:20
+No product found with ID NF876DF and expiration date -.Use add_new_product command to add a new product entry to the current inventory.
+
+-If any of the inputted information is of the wrong format, the user gets feedback:
+python super.py record_transaction_bought
+Enter product ID (type 'q' or 'quit' to cancel transaction):2
+Invalid input. Product ID must be in the format NF/FP + 3 digits + 2 letters.
+Enter product ID (type 'q' or 'quit' to cancel transaction):NF562LA
+Enter quantity bought:
+Invalid input. Quantity must be a positive number.
+
+12. Record Transaction Sold
+
+Description: Record a new sale transaction, and automatically update the 'Quantity in stock' field of specific product.
+Command: python superpy.py record_transaction_sold
+Examples:
+
+python super.py record_transaction_sold  
+Enter product ID (type 'q' or 'quit' to cancel transaction):FP789UI      
+Enter quantity sold:40
+Transaction recorded.
++--------------------------------------+---------+----+------------+
+| 08478a29-abfd-43e4-92fc-e3d4d53ee4c4 | FP789UI | 40 | 2023-07-31 |
++--------------------------------------+---------+----+------------+
+
+-If product does not exist in inventory, user will be informed:
+python super.py record_transaction_sold
+Enter product ID (type 'q' or 'quit' to cancel transaction):FP865KL
+Enter quantity sold:20
+No product found with ID FP865KL. Use add_new_product command to add a new product entry to the current inventory.
+
+-If multiple entries of the same product with different expiration dates are found, the user will be asked to specify which product entry is to be updated,
+by entering its expiration date:
+python super.py record_transaction_sold
+Enter product ID (type 'q' or 'quit' to cancel transaction):FP789UI
+Enter quantity sold:20
+Multiple entries found with product ID FP789UI. Enter the specific expiration date (YYYY-MM-DD): 2023-12-12
+Transaction recorded.
++--------------------------------------+---------+----+------------+
+| 19fa83b6-2b91-4e90-be9c-1511d4c958d0 | FP789UI | 20 | 2023-07-31 |
++--------------------------------------+---------+----+------------+
+
+-If any of the inputted information is of the wrong format, the user gets feedback:
+python super.py record_transaction_bought
+Enter product ID (type 'q' or 'quit' to cancel transaction):2
+Invalid input. Product ID must be in the format NF/FP + 3 digits + 2 letters.
+Enter product ID (type 'q' or 'quit' to cancel transaction):NF562LA
+Enter quantity bought:
+Invalid input. Quantity must be a positive number.
+
+13. Report Profit
+
+Description: Calculate revenue and profit (both rounded up to two decimals) for a specific period of time and plot a line chart.
+Command: python super.py report_profit
+Example:
+
+python super.py report_profit
+Enter start date (YYYY-MM-DD):2022-01-01 
+Enter end date (YYYY-MM-DD):2024-12-12
+Total Revenue: 4141.6
+Total Profit: 5696.13
+
+14. Backup Data
+
+Description: Create a backup of all data in current_inventory.csv, transactions_bought.csv, and transactions_sold.csv
+and store it in a backups directory as a backup CSV file with a time stamp.
+Command: python super.py backup_data
+Example:
+
+python super.py backup_data
+Backup complete.
+
+'backup_2023-07-30_21-17-19.csv':
+
+Current Inventory Data
+Product ID,Product Name,Quantity in stock,Cost price,Restock date,Quantity bought for restock,Retail price,Sold since restock,Expiration date
+FP789UI,Example Food product name,10,1.00,2023-07-31,20,2.00,40,2023-11-11
+FP789UI,Example Food product name,20,1.00,2023-07-31,20,2.00,60,2023-12-12
+NF562LA,Example Non-food product name,31,1.00,2023-07-31,50,2.00,19,-
+...
+
+Buying Transactions Data
+Transaction ID,Product ID,Quantity,Date
+72716cab-4afd-4d25-8525-0857d9e79448,FP789UI,20,2023-07-31
+722eacaa-d166-4018-b381-5faf4eb1f66a,NF562LA,50,2023-07-31
+...
+
+Sale Transactions Data
+Transaction ID,Product ID,Quantity,Date
+2d0fca9f-e1eb-4584-a9ae-85d5d8adda6a,NF985UI,62,2023-07-31
+bec59e7a-b323-4f0b-bf66-cae56895ac96,NF562LA,19,2023-07-31
+...
+
+15. Restore Data
+
+Description: Restore data from a previously created backup CSV file and write each set to their respective CSV file.
+Command: python super.py restore_data
+Example:
+
+python super.py restore_data
+Enter name of backup to be restored:backup_2023-08-01_22-37-12.csv
+Data restored.
+
+16. Advance Date
+
+Description: Advance the date the command line tool operates on.
+Command: python super.py advance n (n=number of days to advance date)
+Example:
+
+python super.py advance 30  
+The date in 30 days will be 2023-08-30. Program now operates with this date. Use command reset_date to return to current date.
+
+17. Reset Date
+
+Description: Reset the date which the command line tool operates on back to the current one.
+Command: python super.py reset_date
+Example:
+
+python super.py reset_date
+The date has been reset to the original current date: 2023-08-01.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

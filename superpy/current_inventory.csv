@@ -1,18 +1,28 @@
 Product ID,Product Name,Quantity in stock,Cost price,Restock date,Quantity bought for restock,Retail price,Sold since restock,Expiration date
 FP987KS,De Zaanse Hoeve Halfvolle melk 1lt,26,0.21,2023-07-09,23,0.99,0,2022-11-02
 NF842FV,"Pampers Premium Protection Maat 4, x24 Luiers",13,3.29,2023-07-09,4,9.40,0,-
-FP542TG,Uncle Ben's Long Grain Rice 500gr,44,0.39,2023-07-16,12,0.99,2,2024-05-22
-FP123LP,JOZO Iodized Salt Fine 1kg,98,0.13,2023-07-09,154,0.98,8,-
-NF654KJ,Edet Comfort 3-Laags 12 + 4 Gratis,150,4.32,2023-07-09,74,7.98,0,-
-NF986OH,Paracetamol HTP 500mg,97,0.25,2023-07-09,79,1.31,0,2025-11-12
+FP542TG,Uncle Ben's Long Grain Rice 500gr,34,0.39,2023-07-16,12,0.99,12,2024-05-22
+FP123LP,JOZO Iodized Salt Fine 1kg,18,0.13,2023-07-09,154,0.98,88,-
+NF654KJ,Edet Comfort 3-Laags 12 + 4 Gratis,31,4.32,2023-07-09,74,7.98,119,-
+NF986OH,Paracetamol HTP 500mg,32,0.25,2023-07-09,79,1.31,65,2025-11-12
 FP845OP,Hagelslag puur 600gr,6,0.79,2023-07-13,50,2.49,0,2023-07-20
 FP845OP,Hagelslag puur 600gr,2,0.79,2023-07-13,2,2.49,0,2024-05-28
 NF456YG,Marcel's Green Soap Wasmiddel 1Lt,36,5.10,2023-07-14,50,9.99,14,-
 FP845OP,Hagelslag puur 600gr,25,0.79,2023-07-14,25,2.49,0,2023-07-13
-FP447KT,Vrieslollies 10st,50,0.11,2023-07-18,50,0.99,0,2023-8-12
-NF156OP,Duracell Alkaline Plus AA 6ce,150,2.31,2023-07-18,150,10.28,0,-
+FP447KT,Vrieslollies 10st,31,0.11,2023-07-18,50,0.99,19,2023-8-12
+NF156OP,Duracell Alkaline Plus AA 6ce,32,2.31,2023-07-18,150,10.28,118,-
 FP785YT,Zoete Puntpaprika 500g,35,0.21,2023-07-18,35,3.3,0,2023-9-07
 FP156ER,Jumbo Mozzarella 220g,25,0.15,2023-07-18,25,3.0,0,2023-12-07
-FP321SD,Goudse Kaas 48+ Geraspt Mild 250g,14,1.54,2023-07-18,14,3.36,0,2023-12-07
-NF156UY,Mr Muscle Keukenreiniger Spray,20,1.65,2023-07-18,20,3.16,0,-
-NF354ER,"Napoli Kookpan � 20 cm 3, 1L",50,13.59,2023-07-18,50,23.99,0,-
+NF156UY,Mr Muscle Keukenreiniger Spray,40,1.65,2024-01-23,20,3.16,0,-
+NF354ER,"Napoli Kookpan 20 cm 3, 1L",30,13.59,2023-07-18,50,23.99,20,-
+FP879SD,Framboos Fruitspread 290g,75,2.59,2023-07-30,56,1.10,65,2025-03-12
+NF751ID,Keukenpapier Extra Sterk 4 Rollen,20,2.99,2023-07-28,50,2.99,30,-
+FP752TR,Bakes Boerencake 800g,31,1.9,2024-01-23,0,2.49,9,2023-12-12
+FP567FT,Jumbo Kaasstengels 150g,25,0.21,2023-07-30,0,1.19,25,2023-12-30
+NF985UI,Lenor In-Wash Geurbooster 154g,30,1.50,2023-07-30,20,4.00,212,-
+FP321SD,Goudse Kaas 48+ Geraspt Mild 250g,38,1.54,2023-07-30,20,3.36,103,2023-12-07
+FP321SD,Goudse Kaas 48+ Geraspt Mild 250g,50,1.54,2023-07-30,23,3.36,93,2023-11-07
+FP789UI,Example Food product name,10,1.00,2023-07-31,20,2.00,40,2023-11-11
+FP789UI,Example Food product name,20,1.00,2023-07-31,20,2.00,60,2023-12-12
+NF813ER,Allesreiniger 750ML,31,1.12,2023-07-31,50,2.39,19,-
+NF562LA,Example Non-food product name,31,1.00,2023-07-31,50,2.00,19,-
